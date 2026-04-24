@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Chirag Patnaik">
+  <meta name="version" content="1.0.0">
+  <title>FretLocal — Guitar Fretboard Trainer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c47c2d'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='system-ui' font-size='13' font-weight='700'%3EFL%3C/text%3E%3C/svg%3E">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f1eb;
+      color: #2d1f0e;
+      min-height: 100vh;
+      padding: 16px 16px 72px;
+    }
+
+    .app { max-width: 660px; margin: 0 auto; }
+
+    /* === Header === */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #7c3d0a;
+      letter-spacing: -0.3px;
+    }
+    .spacer { flex: 1; }
+    .ver { font-size: 0.65rem; color: #b09070; }
+    .help-btn {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid #c9a882;
+      background: white;
+      color: #7c3d0a;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      margin-left: 8px;
+    }
+    .help-btn:hover { background: #fef3e7; }
+
+    /* === Card === */
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(100,60,20,0.09);
+      padding: 24px;
+      margin-bottom: 14px;
+    }
+    .card-sm { padding: 16px; }
+
+    /* === Config === */
+    .config-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #4a2008;
+      margin-bottom: 18px;
+    }
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #7c5c3e;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+    .field input[type="number"] {
+      padding: 10px 12px;
+      border: 1.5px solid #e8d5bf;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fffaf5;
+      color: #2d1f0e;
+      width: 100px;
+      outline: none;
+    }
+    .field input[type="number"]:focus { border-color: #c47c2d; }
+
+    .string-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .str-toggle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 10px 6px;
+      border-radius: 10px;
+      border: 1.5px solid #e8d5bf;
+      cursor: pointer;
+      background: #fffaf5;
+      user-select: none;
+      transition: border-color 0.1s, background 0.1s;
+    }
+    .str-toggle:hover { background: #fef3e7; }
+    .str-toggle.active {
+      background: #fef3e7;
+      border-color: #c47c2d;
+    }
+    .str-note { font-size: 0.9rem; font-weight: 700; color: #4a2008; }
+    .str-desc { font-size: 0.65rem; color: #a08060; }
+    .str-toggle.active .str-note { color: #7c3d0a; }
+
+    .error-msg { color: #c53030; font-size: 0.78rem; margin-top: 8px; }
+
+    /* === Buttons === */
+    .btn {
+      padding: 11px 22px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .btn-primary { background: #c47c2d; color: white; }
+    .btn-primary:hover { background: #a86520; }
+    .btn-primary:disabled { background: #d4b896; color: #fff; cursor: not-allowed; }
+    .btn-secondary {
+      background: #f5ece0;
+      color: #7c3d0a;
+      border: 1.5px solid #e8d5bf;
+    }
+    .btn-secondary:hover { background: #ece0d0; }
+    .btn-wide { width: 100%; }
+    .btn-row { display: flex; gap: 10px; }
+    .btn-row .btn { flex: 1; }
+
+    /* === Exercise HUD === */
+    .hud {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .hud-badge {
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1.5px solid;
+    }
+    .badge-rep   { background: #fef3e7; border-color: #f0d5b0; color: #7c3d0a; }
+    .badge-timer { background: #f0f7ff; border-color: #bee3f8; color: #2b6cb0; font-variant-numeric: tabular-nums; }
+    .badge-score { margin-left: auto; background: #f0fff4; border-color: #9ae6b4; color: #276749; }
+
+    .progress-wrap { height: 4px; background: #e8d5bf; border-radius: 2px; margin-bottom: 14px; }
+    .progress-bar  { height: 100%; background: #c47c2d; border-radius: 2px; transition: width 0.3s; }
+
+    /* === Note prompt === */
+    .note-prompt {
+      text-align: center;
+      padding: 22px 16px;
+    }
+    .prompt-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #a08060;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .note-big {
+      font-size: 3.8rem;
+      font-weight: 800;
+      color: #3d1a00;
+      line-height: 1;
+    }
+    .note-alt {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: #a08060;
+    }
+    .note-sep-slash { font-size: 1.6rem; color: #c9a882; margin: 0 4px; font-weight: 300; }
+    .prompt-hint {
+      font-size: 0.78rem;
+      color: #a08060;
+      margin-top: 10px;
+    }
+    .result-verdict {
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .verdict-ok  { color: #276749; }
+    .verdict-err { color: #c53030; }
+
+    /* === Fretboard === */
+    .fretboard-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .fretboard {
+      min-width: 480px;
+      display: grid;
+      grid-template-columns: 54px repeat(12, 1fr);
+      gap: 3px;
+      background: #1a0d03;
+      border-radius: 12px;
+      padding: 12px 10px;
+    }
+
+    .fh { /* fret header cell */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 22px;
+      font-size: 0.65rem;
+      color: #9a7050;
+      font-weight: 600;
+    }
+    .fh.dot::after {
+      content: '•';
+      display: block;
+      color: #6a5040;
+      font-size: 0.55rem;
+      margin-top: 2px;
+    }
+    .sl { /* string label cell */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 2px;
+    }
+    .sl-name { font-size: 0.82rem; font-weight: 700; color: #f5d9a8; }
+    .sl-ord  { font-size: 0.6rem; color: #7a5530; }
+
+    .fc { /* fret cell */
+      height: 42px;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.05);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: transparent;
+      transition: background 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fc:hover { background: rgba(255,255,255,0.14); }
+    .fc.selected { background: #2f855a; border-color: #68d391; color: white; }
+    .fc.correct  { background: #276749; border-color: #9ae6b4; color: white; }
+    .fc.wrong    { background: #9b2c2c; border-color: #fc8181; color: white; }
+    .fc.missed   { background: #9c4221; border-color: #f6ad55; color: white; }
+
+    /* === Summary === */
+    .big-score { font-size: 3rem; font-weight: 800; color: #3d1a00; }
+    .score-denom { font-size: 1.5rem; color: #a08060; font-weight: 500; }
+    .score-sub { font-size: 0.88rem; color: #7c5c3e; margin-top: 4px; }
+
+    .results-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .results-tbl th {
+      text-align: left;
+      padding: 5px 7px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #7c5c3e;
+      border-bottom: 1px solid #e8d5bf;
+    }
+    .results-tbl td {
+      padding: 8px 7px;
+      border-bottom: 1px solid #f5ece0;
+    }
+    .results-tbl tr:last-child td { border-bottom: none; }
+    .ok  { color: #276749; font-weight: 700; }
+    .err { color: #c53030; font-weight: 700; }
+
+    /* === Legend === */
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.72rem;
+      color: #7c5c3e;
+      margin-top: 10px;
+    }
+    .legend-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      margin-right: 4px;
+    }
+
+    /* === Help Modal === */
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+    .modal-bg.hidden { display: none; }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 380px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .modal h2 { font-size: 1rem; font-weight: 700; color: #4a2008; margin-bottom: 12px; }
+    .modal p, .modal li {
+      font-size: 0.85rem;
+      color: #5a3e2b;
+      line-height: 1.65;
+      margin-bottom: 8px;
+    }
+    .modal ul { padding-left: 16px; }
+    .modal li { margin-bottom: 4px; }
+
+    /* === Footer === */
+    .footer-nav {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 24px;
+      background: rgba(255,255,255,0.92);
+      padding: 6px 18px;
+      border-radius: 20px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      font-size: 0.72rem;
+    }
+    .footer-nav a { color: #0366d6; text-decoration: none; }
+    .footer-nav a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <span class="brand">🎸 FretLocal</span>
+    <span class="spacer"></span>
+    <span class="ver">v1.0.0</span>
+    <button class="help-btn" onclick="toggleHelp()">?</button>
+  </header>
+  <main id="root"></main>
+</div>
+
+<div class="modal-bg hidden" id="help-modal" onclick="handleModalBgClick(event)">
+  <div class="modal">
+    <h2>How to use FretLocal</h2>
+    <ul>
+      <li><strong>Pick strings</strong> — choose which guitar strings to practice (1–6).</li>
+      <li><strong>Set reps</strong> — how many notes to be tested on.</li>
+      <li><strong>Exercise</strong> — a note appears. Click the fret where it lives on each selected string, then hit <em>Submit</em>.</li>
+      <li><strong>Review</strong> — green = correct, red = wrong click, orange = missed the right fret.</li>
+    </ul>
+    <p style="margin-top:10px"><strong>Frets shown:</strong> 1–12 (standard tuning). Each note appears exactly once per string in this range.</p>
+    <p><strong>Standard tuning:</strong> E₂ · A₂ · D₃ · G₃ · B₃ · E₄ (low to high)</p>
+    <button class="btn btn-primary btn-wide" style="margin-top:12px" onclick="toggleHelp()">Got it</button>
+  </div>
+</div>
+
+<div class="footer-nav">
+  <a href="https://naklitechie.github.io/">⬅ More Projects</a>
+  <a href="https://github.com/NakliTechie/FretLocal">⌨ Source</a>
+</div>
+
+<script>
+  // ─── Music constants ────────────────────────────────────────────────────────
+  const NOTES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  const FLATS = [null,'D♭',null,'E♭',null,null,'G♭',null,'A♭',null,'B♭',null];
+  // Fret dot markers (single dots at 3,5,7,9; double at 12)
+  const DOTS = new Set([3,5,7,9,12]);
+
+  const STRINGS = [
+    { name:'E₂', ord:'1st · low',  open:4  },
+    { name:'A₂', ord:'2nd',        open:9  },
+    { name:'D₃', ord:'3rd',        open:2  },
+    { name:'G₃', ord:'4th',        open:7  },
+    { name:'B₃', ord:'5th',        open:11 },
+    { name:'E₄', ord:'6th · high', open:4  },
+  ];
+
+  // Fret 1–12: each note appears exactly once per string.
+  // diff=0 means the note equals the open string → fret 12 (octave).
+  function correctFret(noteIdx, strIdx) {
+    const diff = (noteIdx - STRINGS[strIdx].open + 12) % 12;
+    return diff === 0 ? 12 : diff;
+  }
+
+  function noteHTML(idx) {
+    const s = NOTES[idx];
+    const f = FLATS[idx];
+    if (!f) return `<span class="note-big">${s}</span>`;
+    return `<span class="note-big">${s}</span><span class="note-sep-slash">/</span><span class="note-alt">${f}</span>`;
+  }
+
+  function noteText(idx) {
+    const f = FLATS[idx];
+    return f ? `${NOTES[idx]}/${f}` : NOTES[idx];
+  }
+
+  function fmtTimer(ms) {
+    const s = Math.floor(ms / 1000);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2,'0')}`;
+  }
+
+  function fmtSecs(ms) {
+    const s = (ms / 1000).toFixed(1);
+    return `${s}s`;
+  }
+
+  // ─── State ──────────────────────────────────────────────────────────────────
+  let S = { phase: 'config', strings: [1, 4], reps: 10 };
+  let timerHandle = null;
+
+  // ─── Render ─────────────────────────────────────────────────────────────────
+  function render() {
+    const root = document.getElementById('root');
+    if (S.phase === 'config')   root.innerHTML = renderConfig();
+    else if (S.phase === 'exercise') root.innerHTML = renderExercise();
+    else if (S.phase === 'done')    root.innerHTML = renderDone();
+  }
+
+  // ─── Config screen ──────────────────────────────────────────────────────────
+  function renderConfig() {
+    const toggles = STRINGS.map((st, i) => {
+      const active = S.strings.includes(i) ? 'active' : '';
+      return `<div class="str-toggle ${active}" onclick="toggleString(${i})">
+        <span class="str-note">${st.name}</span>
+        <span class="str-desc">${st.ord}</span>
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="card">
+        <div class="config-title">Guitar Fretboard Trainer</div>
+
+        <div class="field">
+          <span class="field-label">Strings to practice</span>
+          <div class="string-grid">${toggles}</div>
+          <div class="error-msg" id="str-err"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Reps</span>
+          <input type="number" id="reps-in" value="${S.reps}" min="1" max="50">
+        </div>
+
+        <button class="btn btn-primary btn-wide" onclick="startExercise()">Start Exercise</button>
+      </div>`;
+  }
+
+  // ─── Exercise screen ─────────────────────────────────────────────────────────
+  function renderExercise() {
+    const note     = S.notes[S.repIdx];
+    const rev      = S.reviewing;
+    const progress = (S.repIdx / S.reps) * 100;
+    const done     = S.results.length;
+
+    // Fret header row (13 cells: empty label + frets 1–12)
+    let fretHeaders = `<div class="fh"></div>`;
+    for (let f = 1; f <= 12; f++) {
+      const dotCls = DOTS.has(f) ? ' dot' : '';
+      fretHeaders += `<div class="fh${dotCls}">${f}</div>`;
+    }
+
+    // String rows
+    const rows = S.strings.map(si => {
+      const ans = correctFret(note, si);
+      const sel = S.selected[si];
+
+      let row = `<div class="sl">
+        <span class="sl-name">${STRINGS[si].name}</span>
+        <span class="sl-ord">${STRINGS[si].ord}</span>
+      </div>`;
+
+      for (let f = 1; f <= 12; f++) {
+        const isAns = f === ans;
+        const isSel = sel === f;
+        let cls = 'fc';
+        if (rev) {
+          if (isAns && isSel)   cls += ' correct';
+          else if (!isAns && isSel) cls += ' wrong';
+          else if (isAns && !isSel) cls += ' missed';
+        } else {
+          if (isSel) cls += ' selected';
+        }
+        const click = rev ? '' : `onclick="selectFret(${si},${f})"`;
+        row += `<div class="${cls}" ${click}>${f}</div>`;
+      }
+      return row;
+    }).join('');
+
+    const allPicked = S.strings.every(si => S.selected[si] !== undefined);
+    const pickedCount = S.strings.filter(si => S.selected[si] !== undefined).length;
+
+    let hintText = '';
+    if (!rev) {
+      hintText = allPicked
+        ? 'Ready — hit Submit'
+        : `Select a fret on each string (${pickedCount} / ${S.strings.length})`;
+    }
+
+    let verdictHTML = '';
+    if (rev) {
+      verdictHTML = S.repCorrect
+        ? `<div class="result-verdict verdict-ok">✓ Correct! +1 point</div>`
+        : `<div class="result-verdict verdict-err">✗ See orange for the right frets</div>`;
+    }
+
+    const btnLabel  = rev ? (S.repIdx < S.reps - 1 ? 'Next Rep →' : 'See Results') : 'Submit';
+    const btnAction = rev ? 'advanceRep()' : 'submitRep()';
+    const btnDis    = (!rev && !allPicked) ? 'disabled' : '';
+
+    return `
+      <div class="hud">
+        <span class="hud-badge badge-rep">Rep ${S.repIdx + 1} / ${S.reps}</span>
+        <span class="hud-badge badge-timer" id="timer">0:00</span>
+        <span class="hud-badge badge-score">Score: ${S.score} / ${done + (rev ? 0 : 0)}</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar" style="width:${progress}%"></div>
+      </div>
+
+      <div class="card note-prompt">
+        <div class="prompt-label">Find this note</div>
+        <div>${noteHTML(note)}</div>
+        ${verdictHTML || `<div class="prompt-hint">${hintText || 'Select one fret per string'}</div>`}
+      </div>
+
+      <div class="card card-sm">
+        <div class="fretboard-wrap">
+          <div class="fretboard">
+            ${fretHeaders}
+            ${rows}
+          </div>
+        </div>
+        ${rev ? `<div class="legend">
+          <span><span class="legend-dot" style="background:#276749"></span>Correct</span>
+          <span><span class="legend-dot" style="background:#9b2c2c"></span>Wrong click</span>
+          <span><span class="legend-dot" style="background:#9c4221"></span>Missed</span>
+        </div>` : ''}
+      </div>
+
+      <button class="btn btn-primary btn-wide" ${btnDis} onclick="${btnAction}">${btnLabel}</button>`;
+  }
+
+  // ─── Done screen ─────────────────────────────────────────────────────────────
+  function renderDone() {
+    const total = S.reps;
+    const score = S.score;
+    const pct   = Math.round((score / total) * 100);
+    const elapsed = S.endTime - S.startTime;
+
+    const strHeaders = S.strings.map(si => `<th>${STRINGS[si].name}</th>`).join('');
+
+    const rows = S.results.map((r, i) => {
+      const strCells = S.strings.map(si => {
+        return `<td>${r.strResults[si] ? '<span class="ok">✓</span>' : '<span class="err">✗</span>'}</td>`;
+      }).join('');
+      const rowCls = r.correct ? '' : 'style="background:#fff8f8"';
+      return `<tr ${rowCls}>
+        <td>${i + 1}</td>
+        <td style="font-weight:600">${noteText(r.note)}</td>
+        ${strCells}
+        <td style="color:#7c5c3e">${fmtSecs(r.time)}</td>
+      </tr>`;
+    }).join('');
+
+    return `
+      <div class="card" style="text-align:center;padding:28px 24px">
+        <div>
+          <span class="big-score">${score}</span>
+          <span class="score-denom"> / ${total}</span>
+        </div>
+        <div class="score-sub">${pct}% correct · ${fmtTimer(elapsed)} total time</div>
+      </div>
+
+      <div class="card card-sm">
+        <table class="results-tbl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Note</th>
+              ${strHeaders}
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goConfig()">Change Strings</button>
+        <button class="btn btn-primary"   onclick="playAgain()">Play Again</button>
+      </div>`;
+  }
+
+  // ─── Actions ─────────────────────────────────────────────────────────────────
+  function toggleString(i) {
+    if (S.strings.includes(i)) {
+      if (S.strings.length > 1) S.strings = S.strings.filter(s => s !== i);
+    } else {
+      S.strings = [...S.strings, i].sort((a, b) => a - b);
+    }
+    render();
+  }
+
+  function startExercise() {
+    const reps = Math.max(1, Math.min(50, parseInt(document.getElementById('reps-in')?.value || '10')));
+    if (S.strings.length === 0) {
+      document.getElementById('str-err').textContent = 'Select at least one string.';
+      return;
+    }
+    const notes = Array.from({ length: reps }, () => Math.floor(Math.random() * 12));
+    S = {
+      phase: 'exercise',
+      strings: S.strings,
+      reps,
+      repIdx: 0,
+      notes,
+      selected: {},
+      reviewing: false,
+      repCorrect: false,
+      repStart: Date.now(),
+      startTime: Date.now(),
+      results: [],
+      score: 0,
+    };
+    render();
+    startTimer();
+  }
+
+  function selectFret(si, f) {
+    if (S.reviewing) return;
+    if (S.selected[si] === f) {
+      delete S.selected[si];
+    } else {
+      S.selected[si] = f;
+    }
+    render();
+    // Timer interval persists across renders — no restart needed.
+  }
+
+  function submitRep() {
+    const note = S.notes[S.repIdx];
+    const strResults = {};
+    let repCorrect = true;
+    S.strings.forEach(si => {
+      const hit = S.selected[si] === correctFret(note, si);
+      strResults[si] = hit;
+      if (!hit) repCorrect = false;
+    });
+    const repTime = Date.now() - S.repStart;
+    S.results.push({ note, strResults, time: repTime, correct: repCorrect });
+    if (repCorrect) S.score++;
+    S.reviewing  = true;
+    S.repCorrect = repCorrect;
+    stopTimer();
+    render();
+    // Freeze the timer display at the rep's elapsed time.
+    const el = document.getElementById('timer');
+    if (el) el.textContent = fmtTimer(repTime);
+  }
+
+  function advanceRep() {
+    S.repIdx++;
+    if (S.repIdx >= S.reps) {
+      S.phase  = 'done';
+      S.endTime = Date.now();
+      render();
+      return;
+    }
+    S.selected   = {};
+    S.reviewing  = false;
+    S.repCorrect = false;
+    S.repStart   = Date.now();
+    render();
+    startTimer();
+  }
+
+  function goConfig() {
+    stopTimer();
+    S = { phase: 'config', strings: S.strings, reps: S.reps };
+    render();
+  }
+
+  function playAgain() {
+    stopTimer();
+    const { strings, reps } = S;
+    const notes = Array.from({ length: reps }, () => Math.floor(Math.random() * 12));
+    S = {
+      phase: 'exercise',
+      strings,
+      reps,
+      repIdx: 0,
+      notes,
+      selected: {},
+      reviewing: false,
+      repCorrect: false,
+      repStart: Date.now(),
+      startTime: Date.now(),
+      results: [],
+      score: 0,
+    };
+    render();
+    startTimer();
+  }
+
+  // ─── Timer ───────────────────────────────────────────────────────────────────
+  function startTimer() {
+    stopTimer();
+    timerHandle = setInterval(() => {
+      const el = document.getElementById('timer');
+      if (el) el.textContent = fmtTimer(Date.now() - S.repStart);
+    }, 200);
+  }
+
+  function stopTimer() {
+    if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+  }
+
+  // ─── Help modal ──────────────────────────────────────────────────────────────
+  function toggleHelp() {
+    document.getElementById('help-modal').classList.toggle('hidden');
+  }
+
+  function handleModalBgClick(e) {
+    if (e.target === e.currentTarget) toggleHelp();
+  }
+
+  // ─── Init ────────────────────────────────────────────────────────────────────
+  render();
+</script>
+</body>
+</html>
