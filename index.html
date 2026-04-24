@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Chirag Patnaik">
-  <meta name="version" content="1.0.0">
+  <meta name="version" content="1.1.0">
   <title>FretLocal — Guitar Fretboard Trainer</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23c47c2d'/%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='system-ui' font-size='13' font-weight='700'%3EFL%3C/text%3E%3C/svg%3E">
   <style>
@@ -27,27 +27,20 @@
       gap: 8px;
       margin-bottom: 20px;
     }
-    .brand {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #7c3d0a;
-      letter-spacing: -0.3px;
-    }
+    .brand { font-size: 1.25rem; font-weight: 800; color: #7c3d0a; letter-spacing: -0.3px; }
     .spacer { flex: 1; }
     .ver { font-size: 0.65rem; color: #b09070; }
-    .help-btn {
+    .icon-btn {
       width: 30px; height: 30px;
       border-radius: 50%;
       border: 1.5px solid #c9a882;
       background: white;
       color: #7c3d0a;
-      font-size: 0.9rem;
-      font-weight: 700;
+      font-size: 0.85rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      margin-left: 8px;
     }
-    .help-btn:hover { background: #fef3e7; }
+    .icon-btn:hover { background: #fef3e7; }
 
     /* === Card === */
     .card {
@@ -60,58 +53,64 @@
     .card-sm { padding: 16px; }
 
     /* === Config === */
-    .config-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #4a2008;
-      margin-bottom: 18px;
-    }
+    .config-title { font-size: 1rem; font-weight: 700; color: #4a2008; margin-bottom: 18px; }
     .field { margin-bottom: 18px; }
     .field:last-child { margin-bottom: 0; }
     .field-label {
       display: block;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #7c5c3e;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
+      font-size: 0.72rem; font-weight: 700; color: #7c5c3e;
+      text-transform: uppercase; letter-spacing: 0.07em;
       margin-bottom: 8px;
     }
     .field input[type="number"] {
       padding: 10px 12px;
-      border: 1.5px solid #e8d5bf;
-      border-radius: 10px;
-      font-size: 1rem;
-      background: #fffaf5;
-      color: #2d1f0e;
-      width: 100px;
-      outline: none;
+      border: 1.5px solid #e8d5bf; border-radius: 10px;
+      font-size: 1rem; background: #fffaf5; color: #2d1f0e;
+      width: 100px; outline: none;
     }
     .field input[type="number"]:focus { border-color: #c47c2d; }
 
+    /* Preset cards */
+    .preset-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    @media (max-width: 480px) {
+      .preset-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .preset-card {
+      padding: 10px 10px 8px;
+      border-radius: 10px;
+      border: 1.5px solid #e8d5bf;
+      cursor: pointer;
+      background: #fffaf5;
+      transition: border-color 0.1s, background 0.1s;
+      text-align: left;
+    }
+    .preset-card:hover { background: #fef3e7; }
+    .preset-card.active { background: #fef3e7; border-color: #c47c2d; }
+    .preset-emoji { font-size: 1.1rem; margin-bottom: 3px; }
+    .preset-name { font-size: 0.8rem; font-weight: 700; color: #4a2008; line-height: 1.2; }
+    .preset-artist { font-size: 0.65rem; color: #a08060; margin-top: 1px; }
+    .preset-meta { font-size: 0.62rem; color: #b09070; margin-top: 4px; }
+    .preset-card.active .preset-name { color: #7c3d0a; }
+
+    /* String toggles */
     .string-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
     .str-toggle {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      padding: 10px 6px;
-      border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 10px 6px; border-radius: 10px;
       border: 1.5px solid #e8d5bf;
-      cursor: pointer;
-      background: #fffaf5;
-      user-select: none;
-      transition: border-color 0.1s, background 0.1s;
+      cursor: pointer; background: #fffaf5;
+      user-select: none; transition: border-color 0.1s, background 0.1s;
     }
     .str-toggle:hover { background: #fef3e7; }
-    .str-toggle.active {
-      background: #fef3e7;
-      border-color: #c47c2d;
-    }
+    .str-toggle.active { background: #fef3e7; border-color: #c47c2d; }
     .str-note { font-size: 0.9rem; font-weight: 700; color: #4a2008; }
     .str-desc { font-size: 0.65rem; color: #a08060; }
     .str-toggle.active .str-note { color: #7c3d0a; }
@@ -120,42 +119,22 @@
 
     /* === Buttons === */
     .btn {
-      padding: 11px 22px;
-      border-radius: 10px;
-      border: none;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
+      padding: 11px 22px; border-radius: 10px; border: none;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
       transition: background 0.12s;
     }
     .btn-primary { background: #c47c2d; color: white; }
     .btn-primary:hover { background: #a86520; }
     .btn-primary:disabled { background: #d4b896; color: #fff; cursor: not-allowed; }
-    .btn-secondary {
-      background: #f5ece0;
-      color: #7c3d0a;
-      border: 1.5px solid #e8d5bf;
-    }
+    .btn-secondary { background: #f5ece0; color: #7c3d0a; border: 1.5px solid #e8d5bf; }
     .btn-secondary:hover { background: #ece0d0; }
     .btn-wide { width: 100%; }
     .btn-row { display: flex; gap: 10px; }
     .btn-row .btn { flex: 1; }
 
     /* === Exercise HUD === */
-    .hud {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-    .hud-badge {
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border: 1.5px solid;
-    }
+    .hud { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .hud-badge { border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; border: 1.5px solid; }
     .badge-rep   { background: #fef3e7; border-color: #f0d5b0; color: #7c3d0a; }
     .badge-timer { background: #f0f7ff; border-color: #bee3f8; color: #2b6cb0; font-variant-numeric: tabular-nums; }
     .badge-score { margin-left: auto; background: #f0fff4; border-color: #9ae6b4; color: #276749; }
@@ -164,42 +143,27 @@
     .progress-bar  { height: 100%; background: #c47c2d; border-radius: 2px; transition: width 0.3s; }
 
     /* === Note prompt === */
-    .note-prompt {
-      text-align: center;
-      padding: 22px 16px;
-    }
+    .note-prompt { text-align: center; padding: 22px 16px; }
     .prompt-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #a08060;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
+      font-size: 0.72rem; font-weight: 700; color: #a08060;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px;
     }
-    .note-big {
-      font-size: 3.8rem;
-      font-weight: 800;
-      color: #3d1a00;
-      line-height: 1;
-    }
-    .note-alt {
-      font-size: 1.4rem;
-      font-weight: 500;
-      color: #a08060;
-    }
+    .note-big { font-size: 3.8rem; font-weight: 800; color: #3d1a00; line-height: 1; }
+    .note-alt  { font-size: 1.4rem; font-weight: 500; color: #a08060; }
     .note-sep-slash { font-size: 1.6rem; color: #c9a882; margin: 0 4px; font-weight: 300; }
-    .prompt-hint {
-      font-size: 0.78rem;
-      color: #a08060;
-      margin-top: 10px;
-    }
-    .result-verdict {
-      font-size: 0.88rem;
-      font-weight: 600;
-      margin-top: 10px;
-    }
+    .prompt-hint { font-size: 0.78rem; color: #a08060; margin-top: 10px; }
+    .result-verdict { font-size: 0.88rem; font-weight: 600; margin-top: 10px; }
     .verdict-ok  { color: #276749; }
     .verdict-err { color: #c53030; }
+
+    /* Preset tag in note prompt */
+    .preset-tag {
+      display: inline-block;
+      margin-bottom: 6px;
+      background: #fef3e7; border: 1px solid #f0d5b0;
+      border-radius: 12px; padding: 2px 10px;
+      font-size: 0.7rem; font-weight: 600; color: #7c3d0a;
+    }
 
     /* === Fretboard === */
     .fretboard-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -212,44 +176,21 @@
       border-radius: 12px;
       padding: 12px 10px;
     }
-
-    .fh { /* fret header cell */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 22px;
-      font-size: 0.65rem;
-      color: #9a7050;
-      font-weight: 600;
+    .fh {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 22px; font-size: 0.65rem; color: #9a7050; font-weight: 600;
     }
-    .fh.dot::after {
-      content: '•';
-      display: block;
-      color: #6a5040;
-      font-size: 0.55rem;
-      margin-top: 2px;
-    }
-    .sl { /* string label cell */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 2px;
-    }
+    .fh-dot { width: 5px; height: 5px; background: #4a3020; border-radius: 50%; margin-top: 2px; }
+    .sl { display: flex; flex-direction: column; justify-content: center; padding: 0 2px; }
     .sl-name { font-size: 0.82rem; font-weight: 700; color: #f5d9a8; }
     .sl-ord  { font-size: 0.6rem; color: #7a5530; }
-
-    .fc { /* fret cell */
+    .fc {
       height: 42px;
       background: rgba(255,255,255,0.07);
       border: 1.5px solid rgba(255,255,255,0.05);
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: transparent;
+      border-radius: 6px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem; font-weight: 700; color: transparent;
       transition: background 0.1s;
       -webkit-tap-highlight-color: transparent;
     }
@@ -263,86 +204,43 @@
     .big-score { font-size: 3rem; font-weight: 800; color: #3d1a00; }
     .score-denom { font-size: 1.5rem; color: #a08060; font-weight: 500; }
     .score-sub { font-size: 0.88rem; color: #7c5c3e; margin-top: 4px; }
-
     .results-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     .results-tbl th {
-      text-align: left;
-      padding: 5px 7px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #7c5c3e;
-      border-bottom: 1px solid #e8d5bf;
+      text-align: left; padding: 5px 7px;
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #7c5c3e; border-bottom: 1px solid #e8d5bf;
     }
-    .results-tbl td {
-      padding: 8px 7px;
-      border-bottom: 1px solid #f5ece0;
-    }
+    .results-tbl td { padding: 8px 7px; border-bottom: 1px solid #f5ece0; }
     .results-tbl tr:last-child td { border-bottom: none; }
     .ok  { color: #276749; font-weight: 700; }
     .err { color: #c53030; font-weight: 700; }
 
     /* === Legend === */
-    .legend {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      font-size: 0.72rem;
-      color: #7c5c3e;
-      margin-top: 10px;
-    }
-    .legend-dot {
-      display: inline-block;
-      width: 10px; height: 10px;
-      border-radius: 3px;
-      margin-right: 4px;
-    }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.72rem; color: #7c5c3e; margin-top: 10px; }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; }
 
     /* === Help Modal === */
     .modal-bg {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 100;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px; z-index: 100;
     }
     .modal-bg.hidden { display: none; }
     .modal {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      max-width: 380px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
+      background: white; border-radius: 16px; padding: 24px;
+      max-width: 380px; width: 100%; max-height: 85vh; overflow-y: auto;
     }
     .modal h2 { font-size: 1rem; font-weight: 700; color: #4a2008; margin-bottom: 12px; }
-    .modal p, .modal li {
-      font-size: 0.85rem;
-      color: #5a3e2b;
-      line-height: 1.65;
-      margin-bottom: 8px;
-    }
+    .modal p, .modal li { font-size: 0.85rem; color: #5a3e2b; line-height: 1.65; margin-bottom: 8px; }
     .modal ul { padding-left: 16px; }
     .modal li { margin-bottom: 4px; }
 
     /* === Footer === */
     .footer-nav {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 24px;
-      background: rgba(255,255,255,0.92);
-      padding: 6px 18px;
-      border-radius: 20px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-      font-size: 0.72rem;
+      position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 24px; background: rgba(255,255,255,0.92);
+      padding: 6px 18px; border-radius: 20px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08); font-size: 0.72rem;
     }
     .footer-nav a { color: #0366d6; text-decoration: none; }
     .footer-nav a:hover { text-decoration: underline; }
@@ -353,8 +251,9 @@
   <header>
     <span class="brand">🎸 FretLocal</span>
     <span class="spacer"></span>
-    <span class="ver">v1.0.0</span>
-    <button class="help-btn" onclick="toggleHelp()">?</button>
+    <span class="ver">v1.1.0</span>
+    <button class="icon-btn" id="mute-btn" onclick="toggleMute()" title="Toggle sound">🔊</button>
+    <button class="icon-btn" onclick="toggleHelp()" title="Help">?</button>
   </header>
   <main id="root"></main>
 </div>
@@ -363,13 +262,13 @@
   <div class="modal">
     <h2>How to use FretLocal</h2>
     <ul>
-      <li><strong>Pick strings</strong> — choose which guitar strings to practice (1–6).</li>
-      <li><strong>Set reps</strong> — how many notes to be tested on.</li>
-      <li><strong>Exercise</strong> — a note appears. Click the fret where it lives on each selected string, then hit <em>Submit</em>.</li>
-      <li><strong>Review</strong> — green = correct, red = wrong click, orange = missed the right fret.</li>
+      <li><strong>Pick a preset</strong> — load a famous riff and drill those exact notes in order.</li>
+      <li><strong>Or go custom</strong> — choose any strings and set how many random reps.</li>
+      <li><strong>Exercise</strong> — a note appears; click the fret where it lives on each selected string, then hit <em>Submit</em>.</li>
+      <li><strong>Review</strong> — green = hit · red = wrong click · orange = missed the correct fret.</li>
     </ul>
-    <p style="margin-top:10px"><strong>Frets shown:</strong> 1–12 (standard tuning). Each note appears exactly once per string in this range.</p>
-    <p><strong>Standard tuning:</strong> E₂ · A₂ · D₃ · G₃ · B₃ · E₄ (low to high)</p>
+    <p style="margin-top:10px"><strong>Sound:</strong> Karplus-Strong plucked string synthesis. Each click plays the real pitch of that fret. Use 🔊 to mute.</p>
+    <p><strong>Frets 1–12 shown.</strong> Each of the 12 chromatic notes appears exactly once per string in this range (standard tuning: E₂ · A₂ · D₃ · G₃ · B₃ · E₄).</p>
     <button class="btn btn-primary btn-wide" style="margin-top:12px" onclick="toggleHelp()">Got it</button>
   </div>
 </div>
@@ -383,28 +282,27 @@
   // ─── Music constants ────────────────────────────────────────────────────────
   const NOTES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
   const FLATS = [null,'D♭',null,'E♭',null,null,'G♭',null,'A♭',null,'B♭',null];
-  // Fret dot markers (single dots at 3,5,7,9; double at 12)
-  const DOTS = new Set([3,5,7,9,12]);
+  const DOTS  = new Set([3,5,7,9,12]);
 
   const STRINGS = [
-    { name:'E₂', ord:'1st · low',  open:4  },
-    { name:'A₂', ord:'2nd',        open:9  },
-    { name:'D₃', ord:'3rd',        open:2  },
-    { name:'G₃', ord:'4th',        open:7  },
-    { name:'B₃', ord:'5th',        open:11 },
-    { name:'E₄', ord:'6th · high', open:4  },
+    { name:'E₂', ord:'1st · low',   open:4  },
+    { name:'A₂', ord:'2nd',         open:9  },
+    { name:'D₃', ord:'3rd',         open:2  },
+    { name:'G₃', ord:'4th',         open:7  },
+    { name:'B₃', ord:'5th',         open:11 },
+    { name:'E₄', ord:'6th · high',  open:4  },
   ];
 
-  // Fret 1–12: each note appears exactly once per string.
-  // diff=0 means the note equals the open string → fret 12 (octave).
+  // Open-string MIDI notes for pitch synthesis
+  const OPEN_MIDI = [40, 45, 50, 55, 59, 64]; // E2 A2 D3 G3 B3 E4
+
   function correctFret(noteIdx, strIdx) {
     const diff = (noteIdx - STRINGS[strIdx].open + 12) % 12;
     return diff === 0 ? 12 : diff;
   }
 
   function noteHTML(idx) {
-    const s = NOTES[idx];
-    const f = FLATS[idx];
+    const s = NOTES[idx], f = FLATS[idx];
     if (!f) return `<span class="note-big">${s}</span>`;
     return `<span class="note-big">${s}</span><span class="note-sep-slash">/</span><span class="note-alt">${f}</span>`;
   }
@@ -419,25 +317,154 @@
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2,'0')}`;
   }
 
-  function fmtSecs(ms) {
-    const s = (ms / 1000).toFixed(1);
-    return `${s}s`;
+  function fmtSecs(ms) { return `${(ms / 1000).toFixed(1)}s`; }
+
+  // ─── Audio: Karplus-Strong plucked string ──────────────────────────────────
+  let _ac  = null;
+  let muted = false;
+
+  function getAC() {
+    if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)();
+    return _ac;
   }
 
+  function playFret(si, fret) {
+    if (muted) return;
+    try {
+      const ac = getAC();
+      if (ac.state === 'suspended') ac.resume();
+      const freq = 440 * Math.pow(2, (OPEN_MIDI[si] + fret - 69) / 12);
+      karplusStrong(ac, freq, 0.55);
+    } catch(e) {}
+  }
+
+  function karplusStrong(ac, freq, vol) {
+    const sr = ac.sampleRate;
+    const P  = Math.max(2, Math.round(sr / freq));
+    const len = Math.round(sr * 2.8);
+    const buf = ac.createBuffer(1, len, sr);
+    const data = buf.getChannelData(0);
+
+    // Delay line seeded with white noise
+    const dl = new Float32Array(P);
+    for (let i = 0; i < P; i++) dl[i] = (Math.random() - 0.5) * 2;
+
+    // Karplus-Strong: average filter + decay
+    for (let n = 0; n < len; n++) {
+      const cur  = n % P;
+      const prev = (n - 1 + P) % P;
+      data[n]  = dl[cur] * vol;
+      dl[cur]  = 0.996 * 0.5 * (dl[cur] + dl[prev]);
+    }
+
+    const src  = ac.createBufferSource();
+    const gain = ac.createGain();
+    src.buffer = buf;
+    gain.gain.setValueAtTime(1, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 2.7);
+    src.connect(gain);
+    gain.connect(ac.destination);
+    src.start();
+  }
+
+  function toggleMute() {
+    muted = !muted;
+    document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊';
+  }
+
+  // ─── Presets ────────────────────────────────────────────────────────────────
+  // Each note is a chromatic index 0–11 (C=0 … B=11).
+  // Strings are indices into STRINGS[] (0=E₂ … 5=E₄).
+  const PRESETS = [
+    {
+      id: 'custom',
+      name: 'Custom',
+      emoji: '🎲',
+      artist: 'random notes',
+      strings: null, // user picks
+      notes: null,
+    },
+    {
+      id: 'smoke',
+      name: 'Smoke on the Water',
+      emoji: '🔥',
+      artist: 'Deep Purple',
+      desc: 'Intro riff · low E',
+      strings: [0],
+      // G Bb B / G Bb Db B / G Bb B Bb G
+      notes: [7, 10, 11, 7, 10, 1, 11, 7, 10, 11, 10, 7],
+    },
+    {
+      id: 'sna',
+      name: 'Seven Nation Army',
+      emoji: '⚡',
+      artist: 'The White Stripes',
+      desc: 'Main riff · low E',
+      strings: [0],
+      // E E G E D C B
+      notes: [4, 4, 7, 4, 2, 0, 11],
+    },
+    {
+      id: 'nirvana',
+      name: 'Come As You Are',
+      emoji: '🌊',
+      artist: 'Nirvana',
+      desc: 'Intro riff · D string',
+      strings: [2],
+      // E F# F# F# E G E D E F#
+      notes: [4, 6, 6, 6, 4, 7, 4, 2, 4, 6],
+    },
+    {
+      id: 'blackbird',
+      name: 'Blackbird (run)',
+      emoji: '🐦',
+      artist: 'The Beatles',
+      desc: 'Opening scale run · G & B',
+      strings: [3, 4],
+      // G A Bb B C D E F# G (chromatic-ish ascending run)
+      notes: [7, 9, 10, 11, 0, 2, 4, 6, 7],
+    },
+    {
+      id: 'pentatonic',
+      name: 'Am Pentatonic',
+      emoji: '🎵',
+      artist: 'scale',
+      desc: 'Box 1 up & back · low E',
+      strings: [0],
+      // A C D E G E D C A
+      notes: [9, 0, 2, 4, 7, 4, 2, 0, 9],
+    },
+  ];
+
   // ─── State ──────────────────────────────────────────────────────────────────
-  let S = { phase: 'config', strings: [1, 4], reps: 10 };
+  let S = { phase: 'config', strings: [1, 4], reps: 10, presetId: 'custom' };
   let timerHandle = null;
 
   // ─── Render ─────────────────────────────────────────────────────────────────
   function render() {
     const root = document.getElementById('root');
-    if (S.phase === 'config')   root.innerHTML = renderConfig();
+    if (S.phase === 'config')        root.innerHTML = renderConfig();
     else if (S.phase === 'exercise') root.innerHTML = renderExercise();
-    else if (S.phase === 'done')    root.innerHTML = renderDone();
+    else if (S.phase === 'done')     root.innerHTML = renderDone();
   }
 
   // ─── Config screen ──────────────────────────────────────────────────────────
   function renderConfig() {
+    const isCustom = S.presetId === 'custom';
+
+    const presetCards = PRESETS.map(p => {
+      const active = p.id === S.presetId ? 'active' : '';
+      const meta = p.notes
+        ? `<div class="preset-meta">${p.notes.length} notes · ${(p.strings || []).map(i => STRINGS[i].name).join(' ')}</div>`
+        : `<div class="preset-meta">pick your strings & reps</div>`;
+      return `<div class="preset-card ${active}" onclick="selectPreset('${p.id}')">
+        <div class="preset-emoji">${p.emoji}</div>
+        <div class="preset-name">${p.name}</div>
+        <div class="preset-artist">${p.artist}</div>
+        ${meta}
+      </div>`;
+    }).join('');
+
     const toggles = STRINGS.map((st, i) => {
       const active = S.strings.includes(i) ? 'active' : '';
       return `<div class="str-toggle ${active}" onclick="toggleString(${i})">
@@ -451,17 +478,24 @@
         <div class="config-title">Guitar Fretboard Trainer</div>
 
         <div class="field">
-          <span class="field-label">Strings to practice</span>
+          <span class="field-label">Practice Mode</span>
+          <div class="preset-row">${presetCards}</div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Strings${!isCustom ? ' (auto-selected by preset)' : ''}</span>
           <div class="string-grid">${toggles}</div>
           <div class="error-msg" id="str-err"></div>
         </div>
 
-        <div class="field">
+        ${isCustom ? `<div class="field">
           <span class="field-label">Reps</span>
           <input type="number" id="reps-in" value="${S.reps}" min="1" max="50">
-        </div>
+        </div>` : ''}
 
-        <button class="btn btn-primary btn-wide" onclick="startExercise()">Start Exercise</button>
+        <button class="btn btn-primary btn-wide" onclick="startExercise()">
+          ${isCustom ? 'Start Exercise' : `Start — ${PRESETS.find(p=>p.id===S.presetId)?.notes?.length} notes`}
+        </button>
       </div>`;
   }
 
@@ -470,13 +504,11 @@
     const note     = S.notes[S.repIdx];
     const rev      = S.reviewing;
     const progress = (S.repIdx / S.reps) * 100;
-    const done     = S.results.length;
 
-    // Fret header row (13 cells: empty label + frets 1–12)
+    // Fret header row
     let fretHeaders = `<div class="fh"></div>`;
     for (let f = 1; f <= 12; f++) {
-      const dotCls = DOTS.has(f) ? ' dot' : '';
-      fretHeaders += `<div class="fh${dotCls}">${f}</div>`;
+      fretHeaders += `<div class="fh">${f}${DOTS.has(f) ? '<div class="fh-dot"></div>' : ''}</div>`;
     }
 
     // String rows
@@ -490,24 +522,23 @@
       </div>`;
 
       for (let f = 1; f <= 12; f++) {
-        const isAns = f === ans;
-        const isSel = sel === f;
+        const isAns = f === ans, isSel = sel === f;
         let cls = 'fc';
         if (rev) {
-          if (isAns && isSel)   cls += ' correct';
-          else if (!isAns && isSel) cls += ' wrong';
+          if      (isAns && isSel)  cls += ' correct';
           else if (isAns && !isSel) cls += ' missed';
-        } else {
-          if (isSel) cls += ' selected';
-        }
+          else if (!isAns && isSel) cls += ' wrong';
+        } else if (isSel) cls += ' selected';
         const click = rev ? '' : `onclick="selectFret(${si},${f})"`;
         row += `<div class="${cls}" ${click}>${f}</div>`;
       }
       return row;
     }).join('');
 
-    const allPicked = S.strings.every(si => S.selected[si] !== undefined);
+    const allPicked   = S.strings.every(si => S.selected[si] !== undefined);
     const pickedCount = S.strings.filter(si => S.selected[si] !== undefined).length;
+
+    const presetObj = PRESETS.find(p => p.id === S.presetId);
 
     let hintText = '';
     if (!rev) {
@@ -520,10 +551,10 @@
     if (rev) {
       verdictHTML = S.repCorrect
         ? `<div class="result-verdict verdict-ok">✓ Correct! +1 point</div>`
-        : `<div class="result-verdict verdict-err">✗ See orange for the right frets</div>`;
+        : `<div class="result-verdict verdict-err">✗ Orange shows the right fret</div>`;
     }
 
-    const btnLabel  = rev ? (S.repIdx < S.reps - 1 ? 'Next Rep →' : 'See Results') : 'Submit';
+    const btnLabel  = rev ? (S.repIdx < S.reps - 1 ? 'Next →' : 'See Results') : 'Submit';
     const btnAction = rev ? 'advanceRep()' : 'submitRep()';
     const btnDis    = (!rev && !allPicked) ? 'disabled' : '';
 
@@ -531,13 +562,14 @@
       <div class="hud">
         <span class="hud-badge badge-rep">Rep ${S.repIdx + 1} / ${S.reps}</span>
         <span class="hud-badge badge-timer" id="timer">0:00</span>
-        <span class="hud-badge badge-score">Score: ${S.score} / ${done + (rev ? 0 : 0)}</span>
+        <span class="hud-badge badge-score">Score: ${S.score} / ${S.results.length}</span>
       </div>
       <div class="progress-wrap">
         <div class="progress-bar" style="width:${progress}%"></div>
       </div>
 
       <div class="card note-prompt">
+        ${presetObj && presetObj.id !== 'custom' ? `<div class="preset-tag">${presetObj.emoji} ${presetObj.name}</div>` : ''}
         <div class="prompt-label">Find this note</div>
         <div>${noteHTML(note)}</div>
         ${verdictHTML || `<div class="prompt-hint">${hintText || 'Select one fret per string'}</div>`}
@@ -562,19 +594,19 @@
 
   // ─── Done screen ─────────────────────────────────────────────────────────────
   function renderDone() {
-    const total = S.reps;
-    const score = S.score;
-    const pct   = Math.round((score / total) * 100);
+    const total   = S.reps;
+    const score   = S.score;
+    const pct     = Math.round((score / total) * 100);
     const elapsed = S.endTime - S.startTime;
+    const preset  = PRESETS.find(p => p.id === S.presetId);
 
     const strHeaders = S.strings.map(si => `<th>${STRINGS[si].name}</th>`).join('');
 
     const rows = S.results.map((r, i) => {
-      const strCells = S.strings.map(si => {
-        return `<td>${r.strResults[si] ? '<span class="ok">✓</span>' : '<span class="err">✗</span>'}</td>`;
-      }).join('');
-      const rowCls = r.correct ? '' : 'style="background:#fff8f8"';
-      return `<tr ${rowCls}>
+      const strCells = S.strings.map(si =>
+        `<td>${r.strResults[si] ? '<span class="ok">✓</span>' : '<span class="err">✗</span>'}</td>`
+      ).join('');
+      return `<tr ${r.correct ? '' : 'style="background:#fff8f8"'}>
         <td>${i + 1}</td>
         <td style="font-weight:600">${noteText(r.note)}</td>
         ${strCells}
@@ -584,35 +616,38 @@
 
     return `
       <div class="card" style="text-align:center;padding:28px 24px">
+        ${preset && preset.id !== 'custom' ? `<div style="font-size:0.8rem;color:#a08060;margin-bottom:6px">${preset.emoji} ${preset.name}</div>` : ''}
         <div>
           <span class="big-score">${score}</span>
           <span class="score-denom"> / ${total}</span>
         </div>
-        <div class="score-sub">${pct}% correct · ${fmtTimer(elapsed)} total time</div>
+        <div class="score-sub">${pct}% correct · ${fmtTimer(elapsed)} total</div>
       </div>
 
       <div class="card card-sm">
         <table class="results-tbl">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Note</th>
-              ${strHeaders}
-              <th>Time</th>
-            </tr>
-          </thead>
+          <thead><tr><th>#</th><th>Note</th>${strHeaders}<th>Time</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
 
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="goConfig()">Change Strings</button>
+        <button class="btn btn-secondary" onclick="goConfig()">Change Setup</button>
         <button class="btn btn-primary"   onclick="playAgain()">Play Again</button>
       </div>`;
   }
 
   // ─── Actions ─────────────────────────────────────────────────────────────────
+  function selectPreset(id) {
+    S.presetId = id;
+    const p = PRESETS.find(p => p.id === id);
+    if (p && p.strings) S.strings = [...p.strings];
+    render();
+  }
+
   function toggleString(i) {
+    // Switching to custom when manually editing strings
+    S.presetId = 'custom';
     if (S.strings.includes(i)) {
       if (S.strings.length > 1) S.strings = S.strings.filter(s => s !== i);
     } else {
@@ -622,25 +657,31 @@
   }
 
   function startExercise() {
-    const reps = Math.max(1, Math.min(50, parseInt(document.getElementById('reps-in')?.value || '10')));
-    if (S.strings.length === 0) {
-      document.getElementById('str-err').textContent = 'Select at least one string.';
-      return;
+    const preset = PRESETS.find(p => p.id === S.presetId);
+    let notes, strings, reps;
+
+    if (preset && preset.notes) {
+      notes   = [...preset.notes];
+      strings = [...preset.strings];
+      reps    = notes.length;
+    } else {
+      strings = S.strings;
+      if (strings.length === 0) {
+        document.getElementById('str-err').textContent = 'Select at least one string.';
+        return;
+      }
+      reps  = Math.max(1, Math.min(50, parseInt(document.getElementById('reps-in')?.value || '10')));
+      notes = Array.from({ length: reps }, () => Math.floor(Math.random() * 12));
     }
-    const notes = Array.from({ length: reps }, () => Math.floor(Math.random() * 12));
+
     S = {
       phase: 'exercise',
-      strings: S.strings,
-      reps,
+      strings, reps, notes,
+      presetId: S.presetId,
       repIdx: 0,
-      notes,
-      selected: {},
-      reviewing: false,
-      repCorrect: false,
-      repStart: Date.now(),
-      startTime: Date.now(),
-      results: [],
-      score: 0,
+      selected: {}, reviewing: false, repCorrect: false,
+      repStart: Date.now(), startTime: Date.now(),
+      results: [], score: 0,
     };
     render();
     startTimer();
@@ -648,13 +689,10 @@
 
   function selectFret(si, f) {
     if (S.reviewing) return;
-    if (S.selected[si] === f) {
-      delete S.selected[si];
-    } else {
-      S.selected[si] = f;
-    }
+    if (S.selected[si] === f) delete S.selected[si];
+    else S.selected[si] = f;
+    playFret(si, f);
     render();
-    // Timer interval persists across renders — no restart needed.
   }
 
   function submitRep() {
@@ -673,15 +711,23 @@
     S.repCorrect = repCorrect;
     stopTimer();
     render();
-    // Freeze the timer display at the rep's elapsed time.
     const el = document.getElementById('timer');
     if (el) el.textContent = fmtTimer(repTime);
+    // Play the correct notes so player hears the right pitch
+    playCorrectNotes();
+  }
+
+  function playCorrectNotes() {
+    const note = S.notes[S.repIdx];
+    S.strings.forEach((si, idx) => {
+      setTimeout(() => playFret(si, correctFret(note, si)), idx * 280);
+    });
   }
 
   function advanceRep() {
     S.repIdx++;
     if (S.repIdx >= S.reps) {
-      S.phase  = 'done';
+      S.phase   = 'done';
       S.endTime = Date.now();
       render();
       return;
@@ -696,27 +742,23 @@
 
   function goConfig() {
     stopTimer();
-    S = { phase: 'config', strings: S.strings, reps: S.reps };
+    S = { phase: 'config', strings: S.strings, reps: S.reps, presetId: S.presetId };
     render();
   }
 
   function playAgain() {
     stopTimer();
-    const { strings, reps } = S;
-    const notes = Array.from({ length: reps }, () => Math.floor(Math.random() * 12));
+    const { strings, reps, presetId } = S;
+    const preset = PRESETS.find(p => p.id === presetId);
+    const notes  = preset?.notes ? [...preset.notes] : Array.from({ length: reps }, () => Math.floor(Math.random() * 12));
     S = {
       phase: 'exercise',
-      strings,
-      reps,
-      repIdx: 0,
-      notes,
-      selected: {},
-      reviewing: false,
-      repCorrect: false,
-      repStart: Date.now(),
-      startTime: Date.now(),
-      results: [],
-      score: 0,
+      strings: preset?.strings ? [...preset.strings] : strings,
+      reps: notes.length,
+      notes, presetId,
+      repIdx: 0, selected: {}, reviewing: false, repCorrect: false,
+      repStart: Date.now(), startTime: Date.now(),
+      results: [], score: 0,
     };
     render();
     startTimer();
@@ -736,13 +778,8 @@
   }
 
   // ─── Help modal ──────────────────────────────────────────────────────────────
-  function toggleHelp() {
-    document.getElementById('help-modal').classList.toggle('hidden');
-  }
-
-  function handleModalBgClick(e) {
-    if (e.target === e.currentTarget) toggleHelp();
-  }
+  function toggleHelp() { document.getElementById('help-modal').classList.toggle('hidden'); }
+  function handleModalBgClick(e) { if (e.target === e.currentTarget) toggleHelp(); }
 
   // ─── Init ────────────────────────────────────────────────────────────────────
   render();
