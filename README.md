@@ -43,6 +43,12 @@ Frets 1–12 shown in standard tuning (E₂ · A₂ · D₃ · G₃ · B₃ · E
 
 Zero dependencies. Zero build step. Open the file, it works.
 
+## Palette
+
+Coloured with **`morocco-02 · صحراء SAHARA`** — Erg Chebbi dunes at golden hour, 150 m high, the cream-amber of shifting sand. Vintage maple-fretboard warmth: golden body, terracotta brand, royal-blue prompt accent.
+
+Palette pulled from [**Rangrez**](https://github.com/NakliTechie/rangrez), the global colour-palette library that backs all NakliTechie projects.
+
 ---
 
 Part of the **[NakliTechie](https://naklitechie.github.io)** series — browser-native tools that run entirely on your device.
